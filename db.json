@@ -1,0 +1,16 @@
+{
+  "users": [
+    { "id": 1, "username": "admin", "password": "admin123", "name": "المدير الرئيسي", "role": "admin" },
+    { "id": 2, "username": "rep1", "password": "rep123", "name": "المندوب الأول", "role": "rep" }
+  ],
+  "doctors": [
+    { "id": 1, "name": "د. أحمد محمد", "area": "المنطقة الشمالية", "address": "123 شارع الجامعة", "class": "أ" },
+    { "id": 2, "name": "د. علي محمود", "area": "المنطقة الجنوبية", "address": "456 شارع النخيل", "class": "ب" }
+  ],
+  "medicines": [
+    { "id": 1, "name": "دواء 1" },
+    { "id": 2, "name": "دواء 2" }
+  ],
+  "visits": [],
+  "settings": { "visit_time": "09:00" }
+}

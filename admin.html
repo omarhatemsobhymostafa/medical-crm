@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المدير</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .action-buttons button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .edit-btn { background-color: #f39c12; }
+        .delete-btn { background-color: #e74c3c; }
+        .add-form {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            display: none;
+        }
+        .add-form.active { display: block; }
+        select[multiple] { height: auto; min-height: 100px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>لوحة تحكم المدير</h1>
+        <button id="logoutBtn">تسجيل الخروج</button>
+    </header>
+    
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="reps">المناديب</button>
+        <button class="tab-btn" data-tab="doctors">الأطباء</button>
+        <button class="tab-btn" data-tab="medicines">الأدوية</button>
+    </div>
+    
+    <div class="tab-content active" id="reps">
+        <h2>إدارة المناديب</h2>
+        <button id="addRepBtn" class="add-btn">إضافة مندوب جديد</button>
+        
+        <div id="addRepForm" class="add-form">
+            <h3>إضافة مندوب جديد</h3>
+            <form id="repForm">
+                <div class="form-group">
+                    <label for="repName">اسم المندوب:</label>
+                    <input type="text" id="repName" required>
+                </div>
+                <div class="form-group">
+                    <label for="repUsername">اسم المستخدم:</label>
+                    <input type="text" id="repUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="repPassword">كلمة المرور:</label>
+                    <input type="password" id="repPassword" required>
+                </div>
+                <button type="submit" class="save-btn">حفظ</button>
+                <button type="button" class="cancel-btn">إلغاء</button>
+            </form>
+        </div>
+        
+        <table id="repsTable">
+            <thead>
+                <tr>
+                    <th>اسم المندوب</th>
+                    <th>اسم المستخدم</th>
+                    <th>عدد الزيارات</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
+    <div class="tab-content" id="doctors">
+        <h2>إدارة الأطباء</h2>
+        <button id="addDoctorBtn" class="add-btn">إضافة طبيب جديد</button>
+        
+        <div id="addDoctorForm" class="add-form">
+            <h3>إضافة طبيب جديد</h3>
+            <form id="doctorForm">
+                <div class="form-group">
+                    <label for="doctorName">اسم الطبيب:</label>
+                    <input type="text" id="doctorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="doctorArea">المنطقة:</label>
+                    <input type="text" id="doctorArea" required>
+                </div>
+                <div class="form-group">
+                    <label for="doctorAddress">العنوان:</label>
+                    <input type="text" id="doctorAddress" required>
+                </div>
+                <div class="form-group">
+                    <label for="doctorClass">التخصص:</label>
+                    <input type="text" id="doctorClass" required>
+                </div>
+                <button type="submit" class="save-btn">حفظ</button>
+                <button type="button" class="cancel-btn">إلغاء</button>
+            </form>
+        </div>
+        
+        <table id="doctorsTable">
+            <thead>
+                <tr>
+                    <th>اسم الطبيب</th>
+                    <th>المنطقة</th>
+                    <th>العنوان</th>
+                    <th>التخصص</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
+    <div class="tab-content" id="medicines">
+        <h2>إدارة الأدوية</h2>
+        <button id="addMedicineBtn" class="add-btn">إضافة دواء جديد</button>
+        
+        <div id="addMedicineForm" class="add-form">
+            <h3>إضافة دواء جديد</h3>
+            <form id="medicineForm">
+                <div class="form-group">
+                    <label for="medicineName">اسم الدواء:</label>
+                    <input type="text" id="medicineName" required>
+                </div>
+                <button type="submit" class="save-btn">حفظ</button>
+                <button type="button" class="cancel-btn">إلغاء</button>
+            </form>
+        </div>
+        
+        <table id="medicinesTable">
+            <thead>
+                <tr>
+                    <th>اسم الدواء</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // إدارة التبويبات
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+        
+        // إدارة نماذج الإضافة
+        document.querySelectorAll('.add-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const formId = this.id.replace('Btn', 'Form');
+                document.getElementById(formId).classList.toggle('active');
+            });
+        });
+        
+        document.querySelectorAll('.cancel-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.add-form').classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
