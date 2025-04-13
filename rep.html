@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة المندوب</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        select:disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        #doctor {
+            transition: all 0.3s;
+        }
+        
+        .visits-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        select[multiple] {
+            min-height: 150px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>مرحباً <span id="repName"></span></h1>
+        <button id="logoutBtn">تسجيل الخروج</button>
+    </header>
+    
+    <div class="visits-container">
+        <h2>تسجيل زيارة جديدة</h2>
+        <form id="visitForm">
+            <div class="form-group">
+                <label for="area">المحافظة:</label>
+                <select id="area" required>
+                    <option value="">اختر المحافظة</option>
+                    <!-- سيتم تعبئة الخيارات بواسطة JavaScript -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="doctor">الطبيب:</label>
+                <select id="doctor" required disabled>
+                    <option value="">اختر الطبيب</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="medicine">الدواء:</label>
+                <select id="medicine" multiple required></select>
+            </div>
+            <div class="form-group">
+                <label for="notes">ملاحظات:</label>
+                <textarea id="notes" rows="4"></textarea>
+            </div>
+            <button type="submit">حفظ الزيارة</button>
+        </form>
+        
+        <h2>سجل الزيارات</h2>
+        <table id="visitsTable">
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>اسم الطبيب</th>
+                    <th>الأدوية</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!user || user.role !== 'rep') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('repName').textContent = user.name;
+
+            // ملء قائمة المحافظات
+            const areaSelect = document.getElementById('area');
+            const areas = [...new Set(data.doctors.map(d => d.area))]; // الحصول على المحافظات الفريدة
+            areaSelect.innerHTML = '<option value="">اختر المحافظة</option>' + 
+                areas.map(area => `<option value="${area}">${area}</option>`).join('');
+
+            // عند تغيير المحافظة
+            areaSelect.addEventListener('change', function() {
+                const doctorSelect = document.getElementById('doctor');
+                doctorSelect.innerHTML = '<option value="">اختر الطبيب</option>';
+                
+                if (this.value) {
+                    const doctorsInArea = data.doctors.filter(d => d.area === this.value);
+                    doctorSelect.innerHTML += doctorsInArea.map(d => 
+                        `<option value="${d.id}">${d.name} - ${d.class}</option>`).join('');
+                    doctorSelect.disabled = false;
+                } else {
+                    doctorSelect.disabled = true;
+                }
+            });
+
+            // ملء قائمة الأدوية
+            const medicineSelect = document.getElementById('medicine');
+            medicineSelect.innerHTML = data.medicines.map(m => 
+                `<option value="${m.id}">${m.name}</option>`).join('');
+
+            // عرض الزيارات
+            function loadVisits() {
+                const tbody = document.querySelector('#visitsTable tbody');
+                tbody.innerHTML = data.visits
+                    .filter(v => v.rep_id === user.id)
+                    .map(visit => {
+                        const doctor = data.doctors.find(d => d.id === visit.doctor_id);
+                        const meds = visit.medicines.map(id => 
+                            data.medicines.find(m => m.id === id)?.name || 'غير معروف'
+                        ).join(', ');
+                        
+                        return `
+                            <tr>
+                                <td>${new Date(visit.date).toLocaleString()}</td>
+                                <td>${doctor?.name || 'غير معروف'}</td>
+                                <td>${meds}</td>
+                                <td>${visit.notes || 'لا يوجد'}</td>
+                            </tr>
+                        `;
+                    }).join('');
+            }
+
+            // إضافة زيارة
+            document.getElementById('visitForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const doctorId = parseInt(document.getElementById('doctor').value);
+                const meds = Array.from(document.getElementById('medicine').selectedOptions)
+                    .map(opt => parseInt(opt.value));
+                const notes = document.getElementById('notes').value;
+                
+                if (!doctorId || meds.length === 0) {
+                    alert('يجب اختيار طبيب وعلاجات');
+                    return;
+                }
+                
+                const newVisit = {
+                    id: data.visits.length + 1,
+                    rep_id: user.id,
+                    doctor_id: doctorId,
+                    date: new Date().toISOString(),
+                    medicines: meds,
+                    notes
+                };
+                
+                data.visits.push(newVisit);
+                saveData();
+                loadVisits();
+                this.reset();
+                document.getElementById('area').value = '';
+                document.getElementById('doctor').disabled = true;
+                alert('تم تسجيل الزيارة بنجاح');
+            });
+
+            loadVisits();
+        });
+    </script>
+</body>
+</html>
